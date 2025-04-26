@@ -1,4 +1,4 @@
-package com.example.chessfx.utils;
+package com.example.chessfx.model;
 
 public class Move {
     private final Position from;

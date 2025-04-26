@@ -1,9 +1,13 @@
 package com.example.chessfx.pieces;
 
-import com.example.chessfx.utils.Board;
-import com.example.chessfx.utils.Position;
+import com.example.chessfx.model.Board;
+import com.example.chessfx.model.Position;
 
 public class King extends AbstractPiece {
+    public King(Color color) {
+        super(PieceType.KING, color);
+    }
+
 
     @Override
     public boolean isValid(Board board, Position start, Position end) {

@@ -1,16 +1,13 @@
 package com.example.chessfx.pieces;
 
-import com.example.chessfx.utils.Board;
-import com.example.chessfx.utils.Position;
+import com.example.chessfx.model.Board;
+import com.example.chessfx.model.Position;
+import javafx.scene.image.ImageView;
 
 public class Pawn extends AbstractPiece {
-    private char color; // either W or B
-    private boolean didFirstMove; // to determine if double move is possible
 
-
-    public Pawn(char color) {
-        this.color = color;
-        this.didFirstMove = false;
+    public Pawn(Color color) {
+        super(PieceType.PAWN, color);
     }
 
     @Override
