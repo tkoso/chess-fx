@@ -10,10 +10,14 @@ public class Board {
     private static Color turn;
     private static Move lastMove; // we need this to determine if en passant is legal
     private static Map<Position, AbstractPiece> board; // file and rank to piece
-    private static Map<Position, List<PieceView>> subscribers;
+    private static Map<Position, PieceView> subscribers;
+    private static Position currentlySelectedPosition;
 
     private Board() {
         board = new HashMap<>();
+        subscribers = new HashMap<>();
+        turn = Color.WHITE;
+        lastMove = null;
         for (char file = 'A'; file <= 'H'; ++file) {
             for (char rank = '1'; rank <= '8'; ++rank) {
                 Position position = new Position(file, rank);
@@ -61,21 +65,72 @@ public class Board {
         return instance;
     }
 
-    public static Optional<AbstractPiece> getPiece(Position p) {
+    public Optional<AbstractPiece> getPiece(Position p) {
         return Optional.ofNullable(board.get(p));
     }
 
-    public static List<Position> getAllPositions() {
+    public List<Position> getAllPositions() {
         List<Position> positions = new ArrayList<>(board.keySet());
         positions.sort(Comparator.comparing(Position::getFile).thenComparing(Position::getRank));
         return positions;
     }
 
-    public static void addSubscriber(Position position, PieceView pieceView) {
-
+    public void setSubscriber(Position position, PieceView pieceView) {
+        subscribers.put(position, pieceView);
     }
 
-    public static void removeSubscriber(Position position, PieceView pieceView) {
+    private boolean helperMovingFunction(Position position, AbstractPiece piece) {
+        boolean isMoveOK = piece.isValid(this, currentlySelectedPosition, position);
+        if (isMoveOK) {
+            PieceView pieceViewOfMovedPiece = subscribers.get(currentlySelectedPosition);
+            PieceView pieceViewOfDestroyedPiece = subscribers.get(position);
+            if (pieceViewOfDestroyedPiece != null) {
+                pieceViewOfMovedPiece.update(position, null); // delete the captured piece
+            }
 
+            pieceViewOfMovedPiece.update(currentlySelectedPosition, position); // update the image rendering
+
+
+            setSubscriber(position, pieceViewOfMovedPiece);
+            setSubscriber(currentlySelectedPosition, null);
+            return true;
+        } else {
+            System.out.println("INVALID MOVE");
+            return false;
+        }
+    }
+
+    public void handleClick(Position position) {
+        if (currentlySelectedPosition == null) {
+            AbstractPiece piece = board.get(position);
+            if (piece != null && piece.getColor() == turn) {
+                currentlySelectedPosition = position;
+            }
+            return;
+        }
+        // here we assert that currentlySelectedPosition is not null
+        // it's important to note that it implies that movingPiece will be not null as well
+        AbstractPiece movingPiece = board.get(currentlySelectedPosition);
+        AbstractPiece piece = board.get(position); // it can be null
+        if (piece == null) {
+            boolean b = helperMovingFunction(position, movingPiece);
+            if (b) { // we moved so we clear the selected pos
+                board.put(currentlySelectedPosition, null);
+                board.put(position, movingPiece);
+                currentlySelectedPosition = null;
+                turn = (turn == Color.WHITE ? Color.BLACK : Color.WHITE);
+            }
+        }
+        else if (piece.getColor() != turn) {
+            boolean b = helperMovingFunction(position, movingPiece);
+            if (b) {
+                board.put(currentlySelectedPosition, null);
+                board.put(position, movingPiece);
+                currentlySelectedPosition = null;
+                turn = (turn == Color.WHITE ? Color.BLACK : Color.WHITE);
+            }
+        } else if (piece.getColor() == turn) {
+            currentlySelectedPosition = position;
+        }
     }
 }
