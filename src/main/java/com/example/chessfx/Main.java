@@ -1,28 +1,33 @@
 package com.example.chessfx;
 
-import com.example.chessfx.controller.Controller;
 import com.example.chessfx.model.Board;
 import com.example.chessfx.model.Position;
 import com.example.chessfx.pieces.AbstractPiece;
 import com.example.chessfx.pieces.Color;
-import com.example.chessfx.pieces.PieceType;
 import com.example.chessfx.view.PieceView;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.StrokeType;
 import javafx.stage.Stage;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class Main extends Application {
+
+    private PieceView initPieceView(AbstractPiece piece, Position position) throws FileNotFoundException {
+        Image image = new Image(new FileInputStream("/home/tomek/Desktop/random_stuff/java/CHESSFX/src/main/resources/graphics/"
+                                    + (piece.getColor() == Color.WHITE ? "w" : "b") + "-" + piece + ".png"));
+        PieceView pieceView = new PieceView(image);
+        pieceView.update(null, position);
+        return pieceView;
+    }
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -54,34 +59,7 @@ public class Main extends Application {
             Optional<AbstractPiece> optPiece = board.getPiece(position);
             if (optPiece.isPresent()) {
                 AbstractPiece piece = optPiece.get();
-                switch (piece.getType()) {
-                    case PAWN:
-                        if (piece.getColor() == Color.WHITE) {
-                            Image image = new Image(new FileInputStream("/home/tomek/Desktop/random_stuff/java/CHESSFX/src/main/resources/graphics/w-pawn.png"));
-                            pieceView = new PieceView(image);
-                            pieceView.update(null, position);
-                        } else if (piece.getColor() == Color.BLACK) {
-                            Image image = new Image(new FileInputStream("/home/tomek/Desktop/random_stuff/java/CHESSFX/src/main/resources/graphics/b-pawn.png"));
-                            pieceView = new PieceView(image);
-                            pieceView.update(null, position);
-                        }
-                        break;
-                    case ROOK:
-
-                        break;
-                    case KNIGHT:
-
-                        break;
-                    case KING:
-
-                        break;
-                    case BISHOP:
-
-                        break;
-                    case QUEEN:
-
-                        break;
-                }
+                pieceView = initPieceView(piece, position);
             }
 
             if (pieceView != null) {

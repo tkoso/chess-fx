@@ -18,4 +18,9 @@ public class Pawn extends AbstractPiece {
 
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "pawn";
+    }
 }

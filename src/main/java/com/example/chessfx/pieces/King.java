@@ -13,4 +13,9 @@ public class King extends AbstractPiece {
     public boolean isValid(Board board, Position start, Position end) {
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "king";
+    }
 }

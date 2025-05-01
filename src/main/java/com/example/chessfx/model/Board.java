@@ -85,7 +85,7 @@ public class Board {
             PieceView pieceViewOfMovedPiece = subscribers.get(currentlySelectedPosition);
             PieceView pieceViewOfDestroyedPiece = subscribers.get(position);
             if (pieceViewOfDestroyedPiece != null) {
-                pieceViewOfMovedPiece.update(position, null); // delete the captured piece
+                pieceViewOfDestroyedPiece.update(position, null); // delete the captured piece
             }
 
             pieceViewOfMovedPiece.update(currentlySelectedPosition, position); // update the image rendering
