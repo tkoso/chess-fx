@@ -13,8 +13,4 @@ public class Queen extends AbstractPiece {
         return false;
     }
 
-    @Override
-    public String toString() {
-        return "queen";
-    }
 }

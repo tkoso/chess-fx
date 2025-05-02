@@ -26,4 +26,9 @@ public abstract class AbstractPiece {
         return color;
     }
 
+    @Override
+    public String toString() {
+        return (color == Color.WHITE ? "w" : "b") + "-" + type.name().toLowerCase(); // so that it matches file name format
+    }
+
 }

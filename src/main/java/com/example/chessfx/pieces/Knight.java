@@ -13,8 +13,4 @@ public class Knight extends AbstractPiece {
         return false;
     }
 
-    @Override
-    public String toString() {
-        return "knight";
-    }
 }
