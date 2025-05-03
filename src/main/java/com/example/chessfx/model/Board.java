@@ -10,7 +10,7 @@ public class Board {
     private static Color turn;
     private static Move lastMove; // we need this to determine if en passant is legal
     private static Map<Position, AbstractPiece> board; // file and rank to piece
-    private static Map<Position, PieceView> subscribers;
+    private static Map<Position, TileListener> subscribers;
     private static Position currentlySelectedPosition;
 
     private Board() {
@@ -75,15 +75,15 @@ public class Board {
         return positions;
     }
 
-    public void setSubscriber(Position position, PieceView pieceView) {
+    public void setSubscriber(Position position, TileListener pieceView) {
         subscribers.put(position, pieceView);
     }
 
     private boolean helperMovingFunction(Position position, AbstractPiece piece) {
         boolean isMoveOK = piece.isValid(this, currentlySelectedPosition, position);
         if (isMoveOK) {
-            PieceView pieceViewOfMovedPiece = subscribers.get(currentlySelectedPosition);
-            PieceView pieceViewOfDestroyedPiece = subscribers.get(position);
+            TileListener pieceViewOfMovedPiece = subscribers.get(currentlySelectedPosition);
+            TileListener pieceViewOfDestroyedPiece = subscribers.get(position);
             if (pieceViewOfDestroyedPiece != null) {
                 pieceViewOfDestroyedPiece.update(position, null); // delete the captured piece
             }

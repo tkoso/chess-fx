@@ -49,7 +49,6 @@ public class Controller {
     public void initPieces(Group root) throws FileNotFoundException {
         List<Position> arr = board.getAllPositions();
         for (Position position : arr) {
-//            System.out.println(position);
             PieceView pieceView = null;
             Optional<AbstractPiece> optPiece = board.getPiece(position);
             if (optPiece.isPresent()) {
