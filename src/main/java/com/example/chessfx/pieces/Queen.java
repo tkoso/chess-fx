@@ -10,7 +10,11 @@ public class Queen extends AbstractPiece {
 
     @Override
     public boolean isValid(Board board, Position start, Position end) {
-        return false;
+        Bishop bishop = new Bishop(getColor());
+        Rook rook = new Rook(getColor());
+
+        return bishop.isValid(board, start, end) || rook.isValid(board, start, end);
+
     }
 
 }

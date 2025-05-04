@@ -11,7 +11,13 @@ public class King extends AbstractPiece {
 
     @Override
     public boolean isValid(Board board, Position start, Position end) {
-        return false;
+        // assert that end is within the board
+        int rankDiff = Math.abs(start.getRank() - end.getRank());
+        int fileDiff = Math.abs(start.getFile() - end.getFile());
+
+        if (Math.max(rankDiff, fileDiff) > 1) return false;
+
+        return board.getPiece(end).map(p -> p.getColor() != getColor()).orElse(true);
     }
 
 }

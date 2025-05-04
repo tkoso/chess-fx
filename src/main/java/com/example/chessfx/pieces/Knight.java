@@ -15,8 +15,8 @@ public class Knight extends AbstractPiece {
     @Override
     public boolean isValid(Board board, Position start, Position end) {
         // assert that end is correct
-        int rankDiff = Math.abs(start.getRank() - end.getRank());
-        int fileDiff = Math.abs(start.getFile() - end.getFile());
+        int rankDiff = start.getRank() - end.getRank();
+        int fileDiff = start.getFile() - end.getFile();
         Set<Pair<Integer, Integer>> possibleMoves = Set.of(
                 new Pair<>(1, 2),
                 new Pair<>(1, -2),
