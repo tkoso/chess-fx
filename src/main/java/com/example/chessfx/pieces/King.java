@@ -12,6 +12,7 @@ public class King extends AbstractPiece {
     @Override
     public boolean isValid(Board board, Position start, Position end) {
         // assert that end is within the board
+        // TODO: add castling
         int rankDiff = Math.abs(start.getRank() - end.getRank());
         int fileDiff = Math.abs(start.getFile() - end.getFile());
 

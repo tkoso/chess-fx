@@ -11,11 +11,15 @@ import javafx.scene.shape.StrokeType;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class Controller {
     private final Board board;
+    private final Map<Position, Rectangle> tileToRectangle;
+    private Position lastSelected;
 
     private PieceView initPieceView(AbstractPiece piece, Position position) throws FileNotFoundException { // maybe make it viewfactory or somethihg?
         Image image = new Image(new FileInputStream("/home/tomek/Desktop/random_stuff/java/CHESSFX/src/main/resources/graphics/"
@@ -28,6 +32,8 @@ public class Controller {
 
     public Controller() {
         board = Board.getInstance();
+        tileToRectangle = new HashMap<>();
+        lastSelected = null;
     }
 
     public void initBoard(Group root) {
@@ -41,6 +47,9 @@ public class Controller {
                 rectangle.setFill(((i + j) % 2 == 0) ? javafx.scene.paint.Color.LIGHTGRAY : javafx.scene.paint.Color.ROSYBROWN);
                 rectangle.setStrokeType(StrokeType.INSIDE);
                 rectangle.setStroke(javafx.scene.paint.Color.BLACK);
+                // maybe extract creating position to static method in Position class?
+                Position pos = new Position((char) ('A' + i), (char) (8 - j + '0'));
+                tileToRectangle.put(pos, rectangle);
                 root.getChildren().add(rectangle);
             }
         }
@@ -66,11 +75,24 @@ public class Controller {
     public void handleClick(double eventX, double eventY) {
         int x = (int)(eventX / 100) + 'A';
         int y = (int)(8 - eventY / 100 + 1) + '0';
-
         // assert that x is within A-H and y within 1-8
-
         System.out.println((char)x + "" + (char)y);
+
+        if (lastSelected != null) {
+            Rectangle r = tileToRectangle.get(lastSelected);
+            r.setStrokeWidth(1);
+        }
+
         board.handleClick(new Position((char)x, (char)y));
+
+        lastSelected = board.getSelectedPosition();
+        if (lastSelected != null) {
+            Rectangle r = tileToRectangle.get(lastSelected);
+            r.setStrokeWidth(5);
+        }
+
+
+
     }
 
 }

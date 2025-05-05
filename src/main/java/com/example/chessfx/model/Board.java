@@ -96,6 +96,7 @@ public class Board {
             return true;
         } else {
             System.out.println("INVALID MOVE");
+            currentlySelectedPosition = null;
             return false;
         }
     }
@@ -132,5 +133,9 @@ public class Board {
         } else if (piece.getColor() == turn) {
             currentlySelectedPosition = position;
         }
+    }
+
+    public Position getSelectedPosition() {
+        return currentlySelectedPosition;
     }
 }
