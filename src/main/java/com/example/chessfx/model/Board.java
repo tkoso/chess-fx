@@ -2,6 +2,7 @@ package com.example.chessfx.model;
 
 import com.example.chessfx.pieces.*;
 import com.example.chessfx.view.PieceView;
+import javafx.geometry.Pos;
 
 import java.util.*;
 
@@ -79,26 +80,81 @@ public class Board {
         subscribers.put(position, pieceView);
     }
 
-    private boolean helperMovingFunction(Position position, AbstractPiece piece) {
-        boolean isMoveOK = piece.isValid(this, currentlySelectedPosition, position);
-        if (isMoveOK) {
-            TileListener pieceViewOfMovedPiece = subscribers.get(currentlySelectedPosition);
-            TileListener pieceViewOfDestroyedPiece = subscribers.get(position);
-            if (pieceViewOfDestroyedPiece != null) {
-                pieceViewOfDestroyedPiece.update(position, null); // delete the captured piece
-            }
+//    private boolean helperMovingFunction(Position position, AbstractPiece piece) {
+//        boolean isMoveOK = piece.isValid(this, currentlySelectedPosition, position);
+//        if (isMoveOK) {
+//            TileListener pieceViewOfMovedPiece = subscribers.get(currentlySelectedPosition);
+//            TileListener pieceViewOfDestroyedPiece = subscribers.get(position);
+//            if (pieceViewOfDestroyedPiece != null) {
+//                pieceViewOfDestroyedPiece.update(position, null); // delete the captured piece
+//            }
+//
+//            pieceViewOfMovedPiece.update(currentlySelectedPosition, position); // update the image rendering
+//
+//
+//            setSubscriber(position, pieceViewOfMovedPiece);
+//            setSubscriber(currentlySelectedPosition, null);
+//            return true;
+//        } else {
+//            System.out.println("INVALID MOVE");
+//            currentlySelectedPosition = null;
+//            return false;
+//        }
+//    }
 
-            pieceViewOfMovedPiece.update(currentlySelectedPosition, position); // update the image rendering
+    private boolean canMove(Position from, Position to) {
+        AbstractPiece movingPiece = board.get(from); // non null
+        AbstractPiece capturedPiece = board.get(to);
 
-
-            setSubscriber(position, pieceViewOfMovedPiece);
-            setSubscriber(currentlySelectedPosition, null);
-            return true;
-        } else {
-            System.out.println("INVALID MOVE");
-            currentlySelectedPosition = null;
+        if (!movingPiece.isValid(this, from, to)) {
             return false;
         }
+
+        // let's simulate the move
+        board.put(from, null);
+        board.put(to, movingPiece);
+        boolean isChecked = isKingInCheck(movingPiece.getColor());
+        // undo the moves
+        board.put(from, movingPiece);
+        board.put(to, capturedPiece);
+
+        return !isChecked;
+    }
+
+    private void commitMove(Position from, Position to) {
+        AbstractPiece movedPiece = board.get(from);
+
+        board.put(from, null);
+        board.put(to, movedPiece);
+        turn = (turn == Color.WHITE ? Color.BLACK : Color.WHITE);
+
+        TileListener pieceViewOfMovedPiece = subscribers.get(currentlySelectedPosition);
+        TileListener pieceViewOfDestroyedPiece = subscribers.get(to);
+        if (pieceViewOfDestroyedPiece != null) {
+            pieceViewOfDestroyedPiece.update(to, null); // delete the captured piece
+        }
+
+        pieceViewOfMovedPiece.update(currentlySelectedPosition, to); // update the image rendering
+
+
+        setSubscriber(to, pieceViewOfMovedPiece);
+        setSubscriber(currentlySelectedPosition, null);
+    }
+
+    private boolean isKingInCheck(Color color) {
+        Position kingPosition = board.entrySet().stream().filter(e -> {
+            AbstractPiece piece = e.getValue();
+            return piece != null && piece.getColor() == color && piece.getType() == PieceType.KING;
+        }).map(Map.Entry::getKey).findFirst().orElseThrow(() -> new IllegalStateException("no king on the board"));
+
+        for (Map.Entry<Position, AbstractPiece> e : board.entrySet()) {
+            AbstractPiece piece = e.getValue();
+            if (piece != null
+                    && piece.getColor() != color
+                    && piece.isValid(this, e.getKey(), kingPosition)) return true;
+        }
+
+        return false;
     }
 
     public void handleClick(Position position) {
@@ -109,30 +165,39 @@ public class Board {
             }
             return;
         }
-        // here we assert that currentlySelectedPosition is not null
-        // it's important to note that it implies that movingPiece will be not null as well
-        AbstractPiece movingPiece = board.get(currentlySelectedPosition);
-        AbstractPiece piece = board.get(position); // it can be null
-        if (piece == null) {
-            boolean b = helperMovingFunction(position, movingPiece);
-            if (b) { // we moved so we clear the selected pos
-                board.put(currentlySelectedPosition, null);
-                board.put(position, movingPiece);
-                currentlySelectedPosition = null;
-                turn = (turn == Color.WHITE ? Color.BLACK : Color.WHITE);
-            }
+
+        Position from = currentlySelectedPosition;
+        if (canMove(from, position)) {
+            commitMove(from, position);
+        } else {
+            System.out.println("ILLEGAL MOVE OR KING IN CHECK");
         }
-        else if (piece.getColor() != turn) {
-            boolean b = helperMovingFunction(position, movingPiece);
-            if (b) {
-                board.put(currentlySelectedPosition, null);
-                board.put(position, movingPiece);
-                currentlySelectedPosition = null;
-                turn = (turn == Color.WHITE ? Color.BLACK : Color.WHITE);
-            }
-        } else if (piece.getColor() == turn) {
-            currentlySelectedPosition = position;
-        }
+        currentlySelectedPosition = null;
+
+//        // here we assert that currentlySelectedPosition is not null
+//        // it's important to note that it implies that movingPiece will be not null as well
+//        AbstractPiece movingPiece = board.get(currentlySelectedPosition);
+//        AbstractPiece piece = board.get(position); // it can be null
+//        if (piece == null) {
+//            boolean b = helperMovingFunction(position, movingPiece);
+//            if (b) { // we moved so we clear the selected pos
+//                board.put(currentlySelectedPosition, null);
+//                board.put(position, movingPiece);
+//                currentlySelectedPosition = null;
+//                turn = (turn == Color.WHITE ? Color.BLACK : Color.WHITE);
+//            }
+//        }
+//        else if (piece.getColor() != turn) {
+//            boolean b = helperMovingFunction(position, movingPiece);
+//            if (b) {
+//                board.put(currentlySelectedPosition, null);
+//                board.put(position, movingPiece);
+//                currentlySelectedPosition = null;
+//                turn = (turn == Color.WHITE ? Color.BLACK : Color.WHITE);
+//            }
+//        } else if (piece.getColor() == turn) {
+//            currentlySelectedPosition = position;
+//        }
     }
 
     public Position getSelectedPosition() {
